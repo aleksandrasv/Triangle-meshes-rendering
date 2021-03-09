@@ -1,6 +1,6 @@
-import buildingShaderSrc from './building.vert.js';
-import flatShaderSrc from './flat.vert.js';
-import fragmentShaderSrc from './fragment.glsl.js';
+import buildingShaderSrc from './building.vert.js' ;
+import flatShaderSrc from './flat.vert.js' ;
+import fragmentShaderSrc from './fragment.glsl.js' ;
 
 var gl;
 
@@ -148,14 +148,17 @@ class BuildingLayer extends Layer {
 */
 window.updateRotate = function() {
     currRotate = parseInt(document.querySelector("#rotate").value);
+    console.log(currRotate);
 }
 
 window.updateZoom = function() {
     currZoom = parseFloat(document.querySelector("#zoom").value);
+    console.log(currZoom);
 }
 
 window.updateProjection = function() {
     currProj = document.querySelector("#projection").value;
+    console.log(currProj);
 }
 
 /*
@@ -164,7 +167,8 @@ window.updateProjection = function() {
 window.handleFile = function(e) {
     var reader = new FileReader();
     reader.onload = function(evt) {
-        // TODO: parse JSON
+        console.log(evt);
+        // Figure out how to read json and finish task 2 and 3
         for(var layer in parsed){
             switch (layer) {
                 // TODO: add to layers

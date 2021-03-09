@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script type="module" src="gl.js"></script>
 </head>
 <link rel="shortcut icon" href="#">
 <style>
@@ -38,20 +39,39 @@
     <div id="config">
         <table>
             <tr>
-                <td>Rotate</td>
-                <td><!--TODO: rotate slider--></td>
+                <td><label for="rotate">Rotate</label></td>
+                <td>
+                    <input type="range" 
+                           id="rotate" name="rotate"
+                           min="0" max="360" 
+                           oninput="window.updateRotate()">
+                </td>
             </tr>
             <tr>
-                <td>Zoom</td>
-                <td><!--TODO: zoom slider--></td>
+                <td><label for="zoom">Zoom</label></td>
+                <td>
+                    <input type="range"
+                           id="zoom" name="zoom"
+                           min="0" max="100" 
+                           oninput="window.updateZoom()">
+                </td>
             </tr>
             <tr>
-                <td>Projection</td>
-                <td><!--TODO: dropdown menu element--></td>
+                <td><label for="projection">Choose an option:</label></td>
+                <td>
+                    <select id="projection" oninput="window.updateProjection()">
+                        <option value="perspective" > Perspective  </option>
+                        <option value="orthographic"> Orthographic  </option>
+                    </select>
+                </td>
             </tr>
             <tr>
-                <td>Layers</td>
-                <td><!--TODO: input element--></td>
+                <td><label for="fileInput">Choose a file:</label></td>
+                <td><input type="file"
+                           id="fileInput" name="file"
+                           accept="application/json"
+                           oninput="window.handleFile()"
+                ></td>
             </tr>
         </table>
     </div>

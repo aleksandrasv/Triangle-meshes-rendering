@@ -164,33 +164,58 @@ window.updateProjection = function() {
 /*
     File handler
 */
-window.handleFile = function(e) {
+
+
+
+const fileSelector = document.getElementById('fileInput');
+fileSelector.addEventListener('change', (event) => {
+    const file = event.target.files[0];
     var reader = new FileReader();
     reader.onload = function(evt) {
-        console.log(evt);
-        // Figure out how to read json and finish task 2 and 3
-        for(var layer in parsed){
-            switch (layer) {
-                // TODO: add to layers
-                case 'buildings':
-                    // TODO
-                    break;
-                case 'water':
-                    // TODO
-                    break;
-                case 'parks':
-                    // TODO
-                    break;
-                case 'surface':
-                    // TODO
-                    break;
-                default:
-                    break;
-            }
+        if (evt.target.result.length == 0){
+            console.log("Empty file");
+        }
+        else{
+            parseInput(evt.target.result);
         }
     }
-    reader.readAsText(e.files[0]);
+    console.log(layers);
+    reader.readAsText(event.target.files[0]);
+});
+
+function parseInput(input){
+    var parsed = JSON.parse(input);
+    var coordinates, indices, normals, color;
+    
+    for(var layer in parsed){
+        var obj = parsed[layer];
+        for (var i in obj){
+            switch (i){
+                case "coordinates":
+                    coordinates = obj[i];
+                    break;
+                case "indices":
+                    indices = obj[i];
+                    break;
+                case "normals":
+                    normals = obj[i];
+                    break;
+                case "color":
+                    color = obj[i];
+                    break;
+                default:
+                    console.log("don't know what it is")
+            }
+        }
+        if(layer == 'buildings') {
+            layers.addBuildingLayer(layer, coordinates, indices, normals, color);
+        }
+        else {
+            layers.addBuildingLayer(layer, coordinates, indices, color);
+        }
+    }
 }
+
 
 /*
     Update transformation matrices

@@ -9,6 +9,8 @@ var layers = null
 var modelMatrix;
 var projectionMatrix;
 var viewMatrix;
+var anglex = 0;
+var angley = 0;
 
 var currRotate = 0;
 var currZoom = 0;
@@ -18,12 +20,20 @@ var currProj = 'perspective';
     Vertex shader with normals
 */
 class BuildingProgram {
+
     constructor() {
         this.vertexShader = createShader(gl, gl.VERTEX_SHADER, buildingShaderSrc);
         this.fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSrc);
         this.program = createProgram(gl, this.vertexShader, this.fragmentShader);
-
+        
         // TODO: set attrib and uniform locations
+        this.posAttribLoc = gl.getAttribLocation(this.program, "position");
+        this.normAttribLoc = gl.getAttribLocation(this.program, "normal");
+        
+        // set uniform locations: 
+        this.modelLoc = gl.getUniformLocation(this.program, 'uModel');
+        this.projLoc = gl.getUniformLocation(this.program, 'uProjection');
+        this.viewLoc = gl.getUniformLocation(this.program, 'uView');
     }
 
     use() {
@@ -35,12 +45,21 @@ class BuildingProgram {
     Vertex shader with uniform colors
 */
 class FlatProgram {
+
     constructor() {
+        
+        // set shaders
         this.vertexShader = createShader(gl, gl.VERTEX_SHADER, flatShaderSrc);
         this.fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSrc);
         this.program = createProgram(gl, this.vertexShader, this.fragmentShader);
-
-        // TODO: set attrib and uniform locations
+        
+        // set attrib
+        this.posAttribLoc = gl.getAttribLocation(this.program, "position");
+        
+        // set uniform locations: 
+        this.modelLoc = gl.getUniformLocation(this.program, 'uModel');
+        this.projLoc = gl.getUniformLocation(this.program, 'uProjection');
+        this.viewLoc = gl.getUniformLocation(this.program, 'uView');
     }
 
     use() {
@@ -113,13 +132,35 @@ class Layer {
     }
 
     init() {
+        this.program = new FlatProgram();
+        this.indexBuff = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(this.indices));
+        this.vertexBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Uint32Array(this.vertices));
+
         // TODO: create program, set vertex and index buffers, vao
+        this.vao = createVAO(gl, this.program.posAttribLoc, this.vertexBuff);
     }
 
     draw(centroid) {
-        // TODO: use program, update model matrix, view matrix, projection matrix
+        
+        // use program:
+        this.program.use();
+        
+        // update model matrix, view matrix, projection matrix
+        updateModelMatrix();
+        updateProjectionMatrix();
+        updateViewMatrix();
+        
         // TODO: set uniforms
+        gl.uniformMatrix4fv(this.modelLoc, false, new Float32Array(modelMatrix));
+        gl.uniformMatrix4fv(this.projLoc, false, new Float32Array(projectionMatrix));
+        gl.uniformMatrix4fv(this.viewLoc, false, new Float32Array(viewMatrix));
+        
         // TODO: bind vao, bind index buffer, draw elements
+        gl.bindVertexArray(this.vao);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuff);
+
+        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
+        
     }
 }
 
@@ -133,13 +174,40 @@ class BuildingLayer extends Layer {
     }
 
     init() {
-        // TODO: create program, set vertex, normal and index buffers, vao
+        // create program:   
+        this.program  = new BuildingProgram();
+        
+        // set vertex, normal and index buffers:
+
+        this.indexBuff = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(this.indices));
+        this.normalBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Uint32Array(this.normals));
+        this.vertexBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(this.vertices));
+
+        //  create  vao
+        this.vao = createVAO(gl, this.program.posAttribLoc, this.vertexBuff, null, this.normalBuff );
     }
 
     draw(centroid) {
-        // TODO: use program, update model matrix, view matrix, projection matrix
+
+        // TODO: use program,
+        this.program.use();
+
+        // update model matrix, view matrix, projection matrix
+        updateModelMatrix();
+        updateProjectionMatrix();
+        updateViewMatrix();
+        
+        
         // TODO: set uniforms
+        gl.uniformMatrix4fv(this.modelLoc, false, new Float32Array(modelMatrix));
+        gl.uniformMatrix4fv(this.projLoc, false, new Float32Array(projectionMatrix));
+        gl.uniformMatrix4fv(this.viewLoc, false, new Float32Array(viewMatrix));
+
         // TODO: bind vao, bind index buffer, draw elements
+        gl.bindVertexArray(this.vao);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuff);
+
+        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
     }
 }
 
@@ -211,7 +279,7 @@ function parseInput(input){
             layers.addBuildingLayer(layer, coordinates, indices, normals, color);
         }
         else {
-            layers.addBuildingLayer(layer, coordinates, indices, color);
+            layers.addLayer(layer, coordinates, indices, color);
         }
     }
 }
@@ -222,15 +290,43 @@ function parseInput(input){
 */
 function updateModelMatrix(centroid) {
     // TODO: update model matrix
+    var scale = scaleMatrix(0.5, 0.5, 0.5);
+
+    // Rotate a slight tilt
+    var rotateX = rotateXMatrix(0.01*currRotate + 45.0 * Math.PI / 180.0);
+
+    // Rotate according to time
+    var rotateY = rotateYMatrix(0.01*currZoom + -45.0 * Math.PI / 180.0);
+
+    // Move slightly down
+    var position = translateMatrix(0, 0, -50);
+
+    // Multiply together, make sure and read them in opposite order
+    modelMatrix = multiplyArrayOfMatrices([
+        position, // step 4
+        rotateY,  // step 3
+        rotateX,  // step 2
+        scale     // step 1
+    ]);
 }
 
 function updateProjectionMatrix() {
-    // TODO: update projection matrix
+    var aspect = window.innerWidth / window.innerHeight;
+    projectionMatrix = perspectiveMatrix(45.0 * Math.PI / 180.0, aspect, 1, 500);
+    // projMatrix = orthographicMatrix(-aspect, aspect, -1, 1, 0, 500);
 }
 
-function updateViewMatrix(centroid){
-    // TODO: update view matrix
-    // TIP: use lookat function
+function updateViewMatrix() {
+    var now = Date.now();
+    var moveInAndOut = 5 - 50.0 * (Math.sin(now * 0.002) + 1.0) / 2.0;
+
+    var position = translateMatrix(0, 0, moveInAndOut);
+    var world2view = multiplyArrayOfMatrices([
+        position
+    ]);
+
+    viewMatrix = invertMatrix(world2view);
+
 }
 
 /*

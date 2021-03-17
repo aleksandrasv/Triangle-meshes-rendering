@@ -5,7 +5,7 @@ function createShader(gl, type, source) {
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         var info = gl.getShaderInfoLog(shader);
-        console.log('Could not compile WebGL program:' + info);
+        console.log('Could not compile WebGL program:' + info);
     }
 
     return shader;
@@ -19,16 +19,25 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         var info = gl.getProgramInfoLog(program);
-        console.log('Could not compile WebGL program:' + info);
+        console.log('Could not compile WebGL program:' + info);
     }
 
     return program;
+}
+
+function isAbv(value) {
+    return value && value.buffer instanceof ArrayBuffer && value.byteLength !== undefined;
 }
 
 function createBuffer(gl, type, data) {
 
     if(data.length == 0)
         return null;
+
+    if(!isAbv(data)) {
+        console.warn('Data is not an instance of ArrayBuffer');
+        return null;
+    }
 
     var buffer = gl.createBuffer();
     gl.bindBuffer(type, buffer);
@@ -295,16 +304,16 @@ function lookAt(eye, center, up) {
     let centerx = center[0];
     let centery = center[1];
     let centerz = center[2];
-  
+
     if (
-      Math.abs(eyex - centerx) < EPSILON &&
-      Math.abs(eyey - centery) < EPSILON &&
-      Math.abs(eyez - centerz) < EPSILON
-  
+        Math.abs(eyex - centerx) < EPSILON &&
+        Math.abs(eyey - centery) < EPSILON &&
+        Math.abs(eyez - centerz) < EPSILON
+
     ) {
-      return identityMatrix();
+        return identityMatrix();
     }
-  
+
     z0 = eyex - centerx;
     z1 = eyey - centery;
     z2 = eyez - centerz;
@@ -316,35 +325,35 @@ function lookAt(eye, center, up) {
     x1 = upz * z0 - upx * z2;
     x2 = upx * z1 - upy * z0;
     len = Math.hypot(x0, x1, x2);
-  
+
     if (!len) {
-      x0 = 0;
-      x1 = 0;
-      x2 = 0;
-  
+        x0 = 0;
+        x1 = 0;
+        x2 = 0;
+
     } else {
-      len = 1 / len;
-      x0 *= len;
-      x1 *= len;
-      x2 *= len;
+        len = 1 / len;
+        x0 *= len;
+        x1 *= len;
+        x2 *= len;
     }
-  
+
     y0 = z1 * x2 - z2 * x1;
     y1 = z2 * x0 - z0 * x2;
     y2 = z0 * x1 - z1 * x0;
     len = Math.hypot(y0, y1, y2);
-  
+
     if (!len) {
-      y0 = 0;
-      y1 = 0;
-      y2 = 0;
+        y0 = 0;
+        y1 = 0;
+        y2 = 0;
     } else {
-      len = 1 / len;
-      y0 *= len;
-      y1 *= len;
-      y2 *= len;
+        len = 1 / len;
+        y0 *= len;
+        y1 *= len;
+        y2 *= len;
     }
-  
+
     out[0] = x0;
     out[1] = y0;
     out[2] = z0;
@@ -361,7 +370,7 @@ function lookAt(eye, center, up) {
     out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
     out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
     out[15] = 1;
-  
+
     return out;
 
 }
@@ -370,18 +379,18 @@ function lookAt(eye, center, up) {
 function cross(a, b) {
     var out = [0,0,0];
     let ax = a[0],
-    ay = a[1],
-    az = a[2];
+        ay = a[1],
+        az = a[2];
 
-  let bx = b[0],
-    by = b[1],
-    bz = b[2];
+    let bx = b[0],
+        by = b[1],
+        bz = b[2];
 
-  out[0] = ay * bz - az * by;
-  out[1] = az * bx - ax * bz;
-  out[2] = ax * by - ay * bx;
+    out[0] = ay * bz - az * by;
+    out[1] = az * bx - ax * bz;
+    out[2] = ax * by - ay * bx;
 
-  return out;
+    return out;
 }
 
 // From glMatrix
@@ -391,12 +400,12 @@ function normalize(a) {
     let y = a[1];
     let z = a[2];
     let len = x * x + y * y + z * z;
-  
+
     if (len > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len = 1 / Math.sqrt(len);
+        //TODO: evaluate use of glm_invsqrt here?
+        len = 1 / Math.sqrt(len);
     }
-  
+
     out[0] = a[0] * len;
     out[1] = a[1] * len;
     out[2] = a[2] * len;

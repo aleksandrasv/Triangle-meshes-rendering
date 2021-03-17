@@ -6,11 +6,13 @@ uniform mat4 uView;
 uniform vec4 uColor;
 
 in vec3 position;
+in vec4 color;
 
 out vec4 vColor;
 
 void main() {
     // TODO: transform position
+    vColor = color;
     gl_Position = uProjection * uView * uModel * vec4(position, 1);
 }
 `;

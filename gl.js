@@ -9,6 +9,7 @@ var layers = null
 var modelMatrix;
 var projectionMatrix;
 var viewMatrix;
+var uniformLoc;
 var anglex = 0;
 var angley = 0;
 
@@ -34,6 +35,7 @@ class BuildingProgram {
         this.modelLoc = gl.getUniformLocation(this.program, 'uModel');
         this.projLoc = gl.getUniformLocation(this.program, 'uProjection');
         this.viewLoc = gl.getUniformLocation(this.program, 'uView');
+        this.colorLoc = gl.getUniformLocation(this.program, 'uColor');
     }
 
     use() {
@@ -60,6 +62,7 @@ class FlatProgram {
         this.modelLoc = gl.getUniformLocation(this.program, 'uModel');
         this.projLoc = gl.getUniformLocation(this.program, 'uProjection');
         this.viewLoc = gl.getUniformLocation(this.program, 'uView');
+        this.colorLoc = gl.getUniformLocation(this.program, 'uColor');
     }
 
     use() {
@@ -134,7 +137,7 @@ class Layer {
     init() {
         this.program = new FlatProgram();
         this.indexBuff = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(this.indices));
-        this.vertexBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Uint32Array(this.vertices));
+        this.vertexBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(this.vertices));
 
         // TODO: create program, set vertex and index buffers, vao
         this.vao = createVAO(gl, this.program.posAttribLoc, this.vertexBuff);
@@ -146,20 +149,21 @@ class Layer {
         this.program.use();
         
         // update model matrix, view matrix, projection matrix
-        updateModelMatrix();
+        updateModelMatrix(centroid);
         updateProjectionMatrix();
         updateViewMatrix();
         
         // TODO: set uniforms
-        gl.uniformMatrix4fv(this.modelLoc, false, new Float32Array(modelMatrix));
-        gl.uniformMatrix4fv(this.projLoc, false, new Float32Array(projectionMatrix));
-        gl.uniformMatrix4fv(this.viewLoc, false, new Float32Array(viewMatrix));
+        gl.uniformMatrix4fv(this.program.modelLoc, false, new Float32Array(modelMatrix));
+        gl.uniformMatrix4fv(this.program.projLoc, false, new Float32Array(projectionMatrix));
+        gl.uniformMatrix4fv(this.program.viewLoc, false, new Float32Array(viewMatrix));
+        gl.uniform4fv(this.program.colorLoc, new Float32Array(this.color));
         
         // TODO: bind vao, bind index buffer, draw elements
         gl.bindVertexArray(this.vao);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuff);
 
-        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_INT, 0);
         
     }
 }
@@ -180,11 +184,11 @@ class BuildingLayer extends Layer {
         // set vertex, normal and index buffers:
 
         this.indexBuff = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(this.indices));
-        this.normalBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Uint32Array(this.normals));
+        this.normalBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(this.normals));
         this.vertexBuff = createBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(this.vertices));
 
         //  create  vao
-        this.vao = createVAO(gl, this.program.posAttribLoc, this.vertexBuff, null, this.normalBuff );
+        this.vao = createVAO(gl, this.program.posAttribLoc, this.vertexBuff, this.program.normAttribLoc, this.normalBuff );
     }
 
     draw(centroid) {
@@ -193,21 +197,21 @@ class BuildingLayer extends Layer {
         this.program.use();
 
         // update model matrix, view matrix, projection matrix
-        updateModelMatrix();
+        updateModelMatrix(centroid);
         updateProjectionMatrix();
         updateViewMatrix();
         
-        
         // TODO: set uniforms
-        gl.uniformMatrix4fv(this.modelLoc, false, new Float32Array(modelMatrix));
-        gl.uniformMatrix4fv(this.projLoc, false, new Float32Array(projectionMatrix));
-        gl.uniformMatrix4fv(this.viewLoc, false, new Float32Array(viewMatrix));
+        gl.uniformMatrix4fv(this.program.modelLoc, false, new Float32Array(modelMatrix));
+        gl.uniformMatrix4fv(this.program.projLoc, false, new Float32Array(projectionMatrix));
+        gl.uniformMatrix4fv(this.program.viewLoc, false, new Float32Array(viewMatrix));
+        gl.uniform4fv(this.program.colorLoc, new Float32Array(this.color));
 
         // TODO: bind vao, bind index buffer, draw elements
         gl.bindVertexArray(this.vao);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuff);
 
-        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_INT, 0);
     }
 }
 
@@ -296,7 +300,7 @@ function updateModelMatrix(centroid) {
     var rotateX = rotateXMatrix(0.01*currRotate + 45.0 * Math.PI / 180.0);
 
     // Rotate according to time
-    var rotateY = rotateYMatrix(0.01*currZoom + -45.0 * Math.PI / 180.0);
+    var rotateY = rotateYMatrix(0.01*currRotate + -45.0 * Math.PI / 180.0);
 
     // Move slightly down
     var position = translateMatrix(0, 0, -50);

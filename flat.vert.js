@@ -12,7 +12,6 @@ out vec4 vColor;
 
 void main() {
     // TODO: transform position
-    vColor = color;
     gl_Position = uProjection * uView * uModel * vec4(position, 1);
 }
 `;

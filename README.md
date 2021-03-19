@@ -3,7 +3,7 @@
 
 ### Assignment 1: Triangle meshes rendering
 This application renders an urban setting described in an external JSON file that must be uploaded by the user through a configuration panel. 
-The JSON file has four layers describing the elements and color of buildings, parks, water and surface of a particular region.
+The JSON file has four layers describing the elements and color of buildings, parks, water and surface of a particular region.  You can download a zip file with a sample json [here](https://fmiranda.me/courses/cs425-spring-2021/city.json.zip).
 This image shows rendered image on the screen:
 ![img](https://github.com/uic-cs425/spring-2021-assignment-1-aleksandrasv/blob/main/assignment-1.gif?raw=true)
 
@@ -26,20 +26,21 @@ The program contains four main classes:
 A unique buffer and VAO is used for each layer. The color is unified for each layer. 
 
 --------------------------------------------------------------------------------------------------------------------------------------
-File `utils.js` contains some useful functions to create [shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader),
- [programs](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram), 
- [buffers](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer),
- [VAOs](https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject), 
- as well as 
- [matrix operations](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web), 
- [projections](http://www.songho.ca/opengl/gl_projectionmatrix.html), 
- and 
- [lookat](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml).
+File `utils.js` contains  useful functions to create 
+[shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader),
+[programs](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram), 
+[buffers](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer),
+[VAOs](https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject), 
+as well as 
+[matrix operations](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web), 
+[projections](http://www.songho.ca/opengl/gl_projectionmatrix.html), 
+and 
+[lookat](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml).
 
 
 #### JSON format
 
-The building layer also contains normals for each vertex. You can download a zip file with a sample json [here](https://fmiranda.me/courses/cs425-spring-2021/city.json.zip).
+The building layer also contains normals for each vertex.
 
 The `coordinates` array consists of a list of all the vertices for that particular layer. 
 The `indices` array contains the indices of the vertices used to render triangles via `glDrawElements`. 

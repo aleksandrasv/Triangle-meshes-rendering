@@ -68,8 +68,9 @@
             <tr>
                 <td><label for="fileInput">Choose a file:</label></td>
                 <td><input type="file"
-                           id="fileInput" name="file"
-                           accept=".json"
+                           id="fileInput"
+                           accept="application/json"
+                           onchange="window.handleFile(this)"
                 ></td>
             </tr>
         </table>

@@ -234,53 +234,35 @@ window.updateProjection = function() {
     File handler
 */
 
-
-
-const fileSelector = document.getElementById('fileInput');
-fileSelector.addEventListener('change', (event) => {
-    const file = event.target.files[0];
+window.handleFile = function(e) {
     var reader = new FileReader();
     reader.onload = function(evt) {
-        if (evt.target.result.length == 0){
-            console.log("Empty file");
-        }
-        else{
-            parseInput(evt.target.result);
-        }
+        parseInput(evt.target.result);
     }
-    console.log(layers);
-    reader.readAsText(event.target.files[0]);
-});
+    reader.readAsText(e.files[0]);
+}
+
 
 function parseInput(input){
     var parsed = JSON.parse(input);
-    var coordinates, indices, normals, color;
-    
     for(var layer in parsed){
-        var obj = parsed[layer];
-        for (var i in obj){
-            switch (i){
-                case "coordinates":
-                    coordinates = obj[i];
-                    break;
-                case "indices":
-                    indices = obj[i];
-                    break;
-                case "normals":
-                    normals = obj[i];
-                    break;
-                case "color":
-                    color = obj[i];
-                    break;
-                default:
-                    console.log("don't know what it is")
-            }
-        }
-        if(layer == 'buildings') {
-            layers.addBuildingLayer(layer, coordinates, indices, normals, color);
-        }
-        else {
-            layers.addLayer(layer, coordinates, indices, color);
+        var l = parsed[layer];
+        switch (layer) {
+            // TODO: add to layers
+            case 'buildings':
+                layers.addBuildingLayer('buildings', l['coordinates'], l['indices'], l['normals'], l['color']);
+                break;
+            case 'water':
+                layers.addLayer('water', l['coordinates'], l['indices'],  l['color']);
+                break;
+            case 'parks':
+                layers.addLayer('parks', l['coordinates'], l['indices'],  l['color']);
+                break;
+            case 'surface':
+                layers.addLayer('surface', l['coordinates'], l['indices'],  l['color']);
+                break;
+            default:
+                break;
         }
     }
 }
@@ -294,7 +276,7 @@ function updateModelMatrix(centroid) {
     var pos1 = translateMatrix(-centroid[0], -centroid[1], -centroid[2]);
     var pos2 = translateMatrix(centroid[0], centroid[1], centroid[2]);
 
-    var rotate = rotateMatrix(currRotate*Math.PI/180.0);
+    var rotate = rotateZMatrix(currRotate*Math.PI/180.0);
     modelMatrix = multiplyArrayOfMatrices([
         pos2, rotate, pos1
     ])
@@ -303,7 +285,7 @@ function updateModelMatrix(centroid) {
 function updateProjectionMatrix() {
     var aspect = window.innerWidth / window.innerHeight;
     if (currProj == 'perspective'){
-        projectionMatrix = perspectiveMatrix(45.0 * Math.PI / 180.0, aspect, 1, 5000);
+        projectionMatrix = perspectiveMatrix(45.0 * Math.PI / 180.0, aspect, 1, 50000);
     }else{
         var maxZoom = 5000;
         var zoom = maxZoom - (currZoom/100)*maxZoom*0.99;

@@ -5,7 +5,7 @@
 This application renders an urban setting described in an external JSON file that must be uploaded by the user through a configuration panel. 
 The JSON file has four layers describing the elements and color of buildings, parks, water and surface of a particular region.
 This image shows rendered image on the screen:
-![img](https://raw.githubusercontent.com/uic-cs425/spring-2021-assignment-1-aleksandrasv/main/initial.png?token=AHKBAAZR7RZ3NT7RQ6MSLGLAKPXDO)
+![img](https://github.com/uic-cs425/spring-2021-assignment-1-aleksandrasv/blob/main/assignment-1.gif?raw=true)
 
 `To run the program`: open on a local host
 

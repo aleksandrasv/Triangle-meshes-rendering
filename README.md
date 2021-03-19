@@ -13,7 +13,7 @@ To run the program: open on a local host
 2) Zoom slider with value between 1 and 100. This slider approximates the camera towards the center point of the model. 
 3) Dropdown menu with values *perspective* and *orthographic*. Changing the selected option will change the projection type.
 4) A JSONfile input.The JSON file contains coordinates, indices, and colors for 4 layers (buildings, water, parks, surface).
-![pannel.png](http://https://github.com/uic-cs425/spring-2021-assignment-1-aleksandrasv/blob/main/pannel.png)
+![pannel.png](https://raw.githubusercontent.com/uic-cs425/spring-2021-assignment-1-aleksandrasv/main/pannel.png?token=AHKBAA5WSRRSJPF7API6IHLAKPW2Q)
 
 The program contains four main classes:
 - `FlatProgram`: handles shading of flat layers (water, parks, surface).These layers contains a constant color. 
